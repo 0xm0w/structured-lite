@@ -55,6 +55,62 @@ re-injected whenever context is rebuilt, and renders in every structured respons
 
 Requires Node 18+ and Claude Code.
 
+### Let your agent do it
+
+Paste this into Claude Code (or any coding agent with shell access) and it will perform the whole
+installation. It edits your global `settings.json`, so read it before you run it.
+
+```text
+Install the structured-lite skill for Claude Code from https://github.com/0xm0w/structured-lite.
+Do all of this yourself, then report what changed.
+
+1. Determine my Claude config directory: $CLAUDE_CONFIG_DIR if set, otherwise ~/.claude
+   (on Windows, %USERPROFILE%\.claude). Create it if it does not exist.
+
+2. Get the repo: git clone https://github.com/0xm0w/structured-lite into a temporary
+   directory. If git is unavailable, download the raw files instead.
+
+3. Install the two pieces, creating parent directories as needed:
+   - skills/structured-lite/SKILL.md -> <config>/skills/structured-lite/SKILL.md
+   - hooks/inject.js                 -> <config>/structured-lite/inject.js
+   Create the empty directory        <config>/structured-lite/pending/
+   Write the single word "structured-lite", with no trailing newline, to
+                                     <config>/structured-lite/level
+
+4. Register the SessionStart hook in <config>/settings.json.
+   READ THE FILE FIRST AND MERGE INTO IT. Never overwrite it, and never drop a key.
+   Copy it to settings.json.bak before editing. If hooks.SessionStart already exists,
+   APPEND this group to that array and leave every existing entry untouched:
+
+   {"hooks":[{"type":"command","command":"node",
+     "args":["<ABSOLUTE path to <config>/structured-lite/inject.js>"],
+     "timeout":5,"statusMessage":"Loading structured-lite..."}]}
+
+   Use an absolute path with this platform's own separators. On Windows, escape
+   backslashes for JSON, or use forward slashes - node accepts both.
+
+5. Verify, and show me the actual output of each check:
+   - settings.json still parses as JSON, and still contains every top-level key it had
+     before. Diff it against settings.json.bak and show me the diff.
+   - Running `node <config>/structured-lite/inject.js` with empty stdin prints JSON whose
+     hookSpecificOutput.additionalContext contains the string "### Done".
+   - Deliberately break it to prove it fails safe: write "off" to the level file, confirm
+     the hook prints nothing and exits 0, then write "structured-lite" back.
+
+6. Report: the files you created, the settings.json diff, and the fact that this takes
+   effect at my NEXT session start - a SessionStart hook cannot fire in the session that
+   installed it, so nothing will change until I restart.
+
+Do not install anything else, add dependencies, or change any other setting. If any step
+fails, stop and tell me which one - do not work around it.
+```
+
+After it finishes, restart your session. Then read the "Tune it before you trust it" section below;
+the shipped list of failure modes belongs to someone else's project and is the one part that will
+not work for you unedited.
+
+### Manual install
+
 ```bash
 git clone https://github.com/0xm0w/structured-lite && cd structured-lite
 ```
