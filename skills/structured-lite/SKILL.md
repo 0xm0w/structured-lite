@@ -2,8 +2,9 @@
 name: structured-lite
 description: >
   Always-on response contract. Terse professional voice (no filler, no hedging,
-  no pleasantries, no emoji, no tool-call narration) plus a Done / Artifacts / Next summary at the
-  end of any turn that did real work. Use for every response.
+  no pleasantries, no emoji, no tool-call narration) plus a Done / Verifications /
+  Artifacts / Next / Recommended-next-steps close on any turn that did real work, and a persistent
+  list of items only the user can action. Use for every response.
 ---
 
 A voice and a closing structure. The voice is always on. The structure attaches to turns that did

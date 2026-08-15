@@ -5,31 +5,11 @@ tell the truth about whether the work is finished.
 
 It is one skill file plus one `SessionStart` hook. No plugin, no proxy, no network, no dependencies.
 
-```
-### Done
-**Scope: complete** — 4 of 4 requested, plus 1 added along the way.
+![The same work, reported two ways](docs/same-work.png)
 
-- ✅ Fixed the ordering assertion in parser.test.ts.
-- ✅ **added** — Hardened the payload parse. Blocker: a bad payload was dropping the pending list.
-- ❌ Did not adopt the upstream plugin — it overrides model selection from env vars.
-
-### Verifications
-- ✅ `npm run test:unit` — 1,210 passed, 0 failed (was 1,204; the 6 new specs are collected).
-- ❌ `tsc --noEmit` — 2 errors in Row.tsx, optional chain returns undefined. Fix queued in Mine.
-
-### Next
-
-**Mine**
-- 🔜 Plan 3 of 3 — the trading rail, after plan 2 merges.
-
-**Yours** — open until closed
-
-*Decide*
-- [when you can] Approve or reject the new export format (opened 2026-08-01)
-
-*Do*
-- [blocking] Rotate the expired deploy key — releases fail until it is replaced (opened 2026-07-16)
-```
+*One session, one piece of work: a flaky end-to-end test fixed after a wrong first diagnosis, plus a
+pre-existing regression found on the base branch. Left is before the skill, right is after. Real
+output; repository identifiers replaced with neutral equivalents.*
 
 ## Why it exists
 
@@ -50,6 +30,11 @@ structured-lite answers the first with a **scope line** that must carry the evid
 **Verifications** section where every check reports its actual result, and a rule that only verified
 work may appear under Done. It answers the second with a **Yours** list that lives in a file, is
 re-injected whenever context is rebuilt, and renders in every structured response until closed.
+
+The closing structure never replaces the answer. The body above it still leads with what was
+actually wrong, in prose, with the numbers — the sections are an index to it, not a substitute:
+
+![Before and after](docs/before-after.png)
 
 ## Install
 
@@ -175,14 +160,20 @@ appends the open items for the current working directory.
 Items live in `~/.claude/structured-lite/pending/<sanitized-cwd>.md`, one file per project, keyed the
 same way Claude Code keys project directories: `D:\Projects\app` becomes `D--Projects-app`.
 
+The file has three sections. **Open** items render in every response. **Parked** items are injected
+but never rendered — deferred on purpose, each carrying a wake condition that returns it to Open, so
+the assistant cannot re-propose them as new and you cannot lose them. **Closed** items are a record
+and are not injected at all.
+
 Every failure path exits 0 and injects nothing. A missing file, an unknown level, a malformed
 payload — none of them can stop a session starting. `printf off > ~/.claude/structured-lite/level`
 disables it without touching settings.
 
 ## Cost
 
-The ruleset is roughly 4,900 tokens, injected per session start, resume, `/clear` and compaction —
-not per turn. On a long session with several compactions, budget around 20k tokens.
+The ruleset is roughly 5,450 tokens on a clean install, injected per session start, resume,
+`/clear` and compaction — not per turn. Your open-item list adds to that as it grows. On a long
+session with several compactions, budget 20-30k tokens.
 
 That is a real cost and worth weighing. It buys shorter responses (evidence appears once, in
 Verifications, instead of being restated), and it buys not shipping a "complete" that was not.
@@ -200,6 +191,13 @@ Verifications, instead of being restated), and it buys not shipping a "complete"
   unblocks lives in *Mine* as a gated `🔜`. Never both.
 - **Added work is counted separately.** Folding discovered work into the original denominator hides
   the true scope and the fact that the plan was wrong about something.
+- **Inherited failure is not caused failure.** A red check that was already red names the baseline
+  commit it was compared against and says whether it is deterministic. Without that, nobody can tell
+  whether this change broke it.
+- **Parked is a third state.** Between open and closed: deferred deliberately, never rendered, woken
+  by a stated condition. Only the human parks their own items.
+- **The last section is a recommendation, not a list.** Two or three existing items, ranked, with the
+  reason for the order. It may never introduce something new.
 
 ## License
 
