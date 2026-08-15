@@ -3,7 +3,8 @@
 A response contract for Claude Code: a terse professional voice, and a closing summary that has to
 tell the truth about whether the work is finished.
 
-It is one skill file plus one `SessionStart` hook. No plugin, no proxy, no network, no dependencies.
+It is one skill file plus one `SessionStart` hook. No plugin, no proxy, no network, no npm packages.
+It does require Claude Code — see [Requirements](#requirements).
 
 ![The same work, reported two ways](docs/same-work.png)
 
@@ -55,14 +56,48 @@ the question is asked. It gates on consequence, so cheap reversible choices stay
 
 Install it the same way as the main skill: copy the directory into `~/.claude/skills/`.
 
-## Install
+## Requirements
 
-Requires Node 18+ and Claude Code.
+**Claude Code.** Two of its surfaces are load-bearing: the `~/.claude/skills/<name>/SKILL.md` layout,
+and the `SessionStart` hook contract — `inject.js` emits `hookSpecificOutput.additionalContext`,
+which nothing else reads.
+
+**Node, for the hook only.** The entire repository imports `fs` and `path` and nothing else. There
+is no `package.json`, no lockfile, no `node_modules`, nothing to install. Verified on Node 24; the
+code uses nothing newer than optional chaining, so Node 14+ should work — that is inference from the
+syntax, not a test result.
+
+**Nothing else.** `superpowers` appears three times in `deciding-together`, describing how the two
+compose. Those sentences are inert without it and every rule in both skills stands alone.
+`structured-lite` never mentions it.
+
+## Do not port this to another agent
+
+Not because the prose would not transfer. The voice and the reporting rules are harness-agnostic, and
+pasting `SKILL.md` into another tool would work fine on its own.
+
+The problem is narrower and worse: **the persistent item list is the half that cannot travel, and
+shipping half of it is worse than shipping none.** `SKILL.md` instructs the model to render every
+open item from `~/.claude/structured-lite/pending/<cwd>.md` in every response, and to write items
+there the moment they are identified. Without the `SessionStart` hook nothing ever reads that file.
+The model is then following a rule about a list it cannot see, and the failure mode is a confident
+report that your items are being tracked when they are not — strictly worse than the plain prose you
+started with, because it looks like a system.
+
+Two smaller mismatches: the rules assume clickable working-directory-relative file links and a Run
+button on ```bash fences. Both are Claude Code rendering behaviours; elsewhere they are inert
+formatting.
+
+If you want these ideas on another tool, take the rules and **delete the Yours section entirely**. A
+reporting contract with no persistence layer is coherent. One that promises persistence it does not
+have is not.
+
+## Install
 
 ### Let your agent do it
 
-Paste this into Claude Code (or any coding agent with shell access) and it will perform the whole
-installation. It edits your global `settings.json`, so read it before you run it.
+Paste this into Claude Code, or into any agent with shell access — either way it installs into
+Claude Code, which is what runs it. It edits your global `settings.json`, so read it before you run it.
 
 ```text
 Install the structured-lite skill for Claude Code from https://github.com/0xm0w/structured-lite.
