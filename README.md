@@ -42,6 +42,19 @@ next actions — so every `❌` has to say which it is:
 
 ![Red is not always red](docs/red-is-not-red.png)
 
+## A second skill: deciding-together
+
+`skills/deciding-together/SKILL.md` is separate and optional. It addresses the other half of the
+problem: not how work is *reported*, but how a choice is *presented* before you make it.
+
+A recommendation with no stated cost of being wrong is an instruction with extra steps — taking it
+is the only rational move, so the choice was never really offered. The skill requires grounding the
+options in the project's own settled decisions and in current external facts, then presenting them
+as a table with **what it costs**, **how reversible it is**, and **certainty with its basis**, before
+the question is asked. It gates on consequence, so cheap reversible choices stay fast.
+
+Install it the same way as the main skill: copy the directory into `~/.claude/skills/`.
+
 ## Install
 
 Requires Node 18+ and Claude Code.
