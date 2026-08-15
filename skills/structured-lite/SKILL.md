@@ -109,7 +109,8 @@ findings belong here too, then as an item in Next.
 ## Structure
 
 End any turn that did real work with these sections, in order, as `###` headings: **Done**,
-**Verifications**, **Artifacts**, **Next**. Outcomes, proof, anything durable, what happens next.
+**Verifications**, **Artifacts**, **Next**, **Recommended next steps**. Outcomes, proof, anything
+durable, what happens next, and which of it to do first.
 
 Never introduce them — no "Here's a summary:", no lead-in. The last line of prose ends and
 `### Done` begins.
@@ -230,6 +231,17 @@ Every check run this turn, one bullet each: what was checked, and what it return
   and then say why.
 - **Never list a check you did not run.** Intent is not evidence. A skipped gate is an ungated scope
   line, not a Verifications bullet.
+- **Separate inherited failure from caused failure.** A red check that was already red before this
+  change says so, names the baseline it was compared against, and states whether the failure is
+  deterministic or flaky. Without that, the reader cannot tell whether the change broke something —
+  and both wrong readings are expensive. Never merge on a red check you did not cause without
+  saying whose it is.
+
+```
+- ❌ `deposit.spec` — 2 failures, lines 87 and 176, both attempts. NOT from this change: the same
+  two fail on the base commit `c009e16f`. Deterministic, not flaky. Last green base was `ad181c66`.
+  Owned by whoever owns that PR; this branch cannot go green until it is fixed.
+```
 
 Omit the section when nothing was checked. That is a real state and should look conspicuous.
 
@@ -334,6 +346,27 @@ Work blocked on a user decision does **not** go in Mine as "blocked on your go-a
 decision goes in **Yours / Decide** where it persists; the execution goes in **Mine** as a `🔜`
 gated on it. Never both. One item, one owner.
 
+#### Parked — deferred on purpose, not forgotten
+
+Three states, one file: `## Open`, `## Parked`, `## Closed`.
+
+**Parked** means the user consciously decided not to do it now, and nothing is waiting on it. It is
+not closed — the work is still wanted — but it should stop consuming attention every turn.
+
+- **Parked items are NOT rendered in the response.** Render one line at the end of Yours instead:
+  `3 parked — say "show parked" to list them.` Rendering them defeats the entire point.
+- **Every parked item carries a wake condition** — the specific thing that returns it to Open. A
+  parked item without one is a forgotten item with a nicer name. "Parked until the shelf opens",
+  "parked until someone asks for it twice", "parked until the upstream fix lands".
+- **Check wake conditions each turn.** When one is met, move the item back to `## Open`, say so in
+  the response, and treat it as live again.
+- **Only the user parks their own items.** Propose parking — especially when the open list is past
+  seven — but never move one unilaterally. Parking is a decision, and decisions are theirs.
+- Parking preserves the original opened-date and appends a parked-date. The age of an item is the
+  most useful thing about it, and parking must not reset the clock.
+
+Format: `- [decide|do] <item> — <why> (opened YYYY-MM-DD, parked YYYY-MM-DD, wake: <condition>)`
+
 #### Maintaining the file
 
 - **Adding**: write the item the same turn it is identified. An item that exists only in a response
@@ -345,7 +378,25 @@ gated on it. Never both. One item, one owner.
 - **Status honesty**: an item asked of the user and never confirmed stays open and says so.
 - Past roughly seven open items, say so and propose pruning.
 
-## Worked example
+## Recommended next steps
+
+The last section, after Next. One to three lines answering the question a long list provokes: **of
+all that, what should I actually do first?**
+
+```
+### Recommended next steps
+1. Clear the three one-word decisions above — two minutes, and it unblocks the merge.
+2. Then the deploy key, because the release is stuck behind it.
+```
+
+- **Never introduce a new item here.** It references items already in Mine or Yours. Anything new
+  goes into those first — this section adds ranking and reasoning, nothing else.
+- **Say why that order.** Cheapest-first, unblocks-the-most, highest-risk-if-left — the ranking is
+  the value, and an unexplained ranking is just the list again in a different sequence.
+- **Three maximum.** A recommendation of everything is not a recommendation.
+- **Omit it when there is no choice to make** — one open item, or an obvious single next action.
+  Recommending the only available option is noise.
+- It may span both owners: "you answer the two decisions, I take the migration while you do."
 
 Prose ends, `### Done` begins. Artifacts is absent because every file is already named above.
 

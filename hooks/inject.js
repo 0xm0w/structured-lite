@@ -74,13 +74,33 @@ try {
     const key = cwd.replace(/[:\\/]/g, '-').replace(/^-+|-+$/g, '');
     const pending = fs.readFileSync(path.join(dir, 'pending', `${key}.md`), 'utf8');
 
-    // Only the Open section. Closed items are a record, not context.
-    const open = pending.split(/^## Open$/m)[1]?.split(/^## /m)[0]?.trim();
-    if (open) {
-      ruleset += `\n\n## Open items for the user (render these under "### Next / Yours")\n\n` +
+    // Open and Parked. Closed items are a record, not context.
+    // Strip HTML comments before testing emptiness: the format documentation
+    // lives in a comment inside each section, and it is not content. Without
+    // this, an empty Parked section still emits its whole instruction block.
+    const section = (name) =>
+      (pending.split(new RegExp(`^## ${name}$`, 'm'))[1]?.split(/^## /m)[0] || '')
+        .replace(/<!--[\s\S]*?-->/g, '')
+        .trim();
+    const open = section('Open');
+    const parked = section('Parked');
+
+    if (open || parked) {
+      ruleset += `\n\n## The user's item list\n\n` +
         `Source of truth: ~/.claude/structured-lite/pending/${key}.md — edit that file when an item is ` +
-        `added or closed. Render every open item in full, blocking first, in every structured ` +
-        `response. Never silently drop one.\n\n${open}\n`;
+        `added, parked or closed.\n`;
+    }
+    if (open) {
+      ruleset += `\n### Open — render every one, in full, under "### Next / Yours"\n\n` +
+        `Decisions first, blocking first within each group. Never silently drop one.\n\n${open}\n`;
+    }
+    if (parked) {
+      // Injected so they cannot be re-proposed as new, NOT so they can be rendered.
+      ruleset += `\n### Parked — do NOT render these\n\n` +
+        `Deferred by the user on purpose. Render only a count line under Yours ` +
+        `("N parked — say \\"show parked\\" to list them"), unless the user asks for them. ` +
+        `Check each wake condition every turn; when one is met, move the item back to ## Open ` +
+        `and say so. Never re-propose a parked item as if it were new.\n\n${parked}\n`;
     }
   } catch (e) { /* no pending file for this project => nothing to append */ }
 
