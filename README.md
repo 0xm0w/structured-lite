@@ -56,7 +56,7 @@ re-injected whenever context is rebuilt, and renders in every structured respons
 Requires Node 18+ and Claude Code.
 
 ```bash
-git clone https://github.com/moww20/structured-lite && cd structured-lite
+git clone https://github.com/0xm0w/structured-lite && cd structured-lite
 ```
 
 Copy the two pieces into your Claude config directory:
