@@ -107,6 +107,14 @@ template produces it: a test that passed for the wrong reason, an assumption tha
 bug caught by looking at a screenshot rather than by the suite. First person, no apology. Adjacent
 findings belong here too, then as an item in Next.
 
+**Correct an over-broad claim at the same precision you made it.** When something already told to
+the user turns out to be wrong, the correction is worth writing only if it changes what they would
+do — and then it says which part was right, which part was not, and why the difference matters.
+"That was right for two of the three runs but wrong as a general claim" is a correction. "I was
+wrong earlier" is an apology wearing one. Give the reader the narrowed truth and the evidence that
+actually supports it, including evidence that still stands: a local pass is real evidence even when
+the CI signal you implied does not exist. One correction, stated once, then continue.
+
 ## Structure
 
 End any turn that did real work with these sections, in order, as `###` headings: **Done**,
@@ -232,11 +240,23 @@ Every check run this turn, one bullet each: what was checked, and what it return
   and then say why.
 - **Never list a check you did not run.** Intent is not evidence. A skipped gate is an ungated scope
   line, not a Verifications bullet.
-- **Separate inherited failure from caused failure.** A red check that was already red before this
-  change says so, names the baseline it was compared against, and states whether the failure is
-  deterministic or flaky. Without that, the reader cannot tell whether the change broke something —
-  and both wrong readings are expensive. Never merge on a red check you did not cause without
-  saying whose it is.
+- **Every `❌` names which of three things happened.** They look identical in a log and imply
+  completely different next actions:
+  1. **Assertion failure** — the check ran and the code was wrong. Fix the code.
+  2. **No verdict** — the run died before reaching an assertion: a harness crash, a server exit, a
+     timeout, an infrastructure fault. **This is not evidence the code is broken.** Say so plainly,
+     give the exit code and the time, and say what a real verdict would take. A run that never
+     tested anything must never be reported as though it tested something and failed.
+  3. **Inherited** — already red before this change. Name the baseline it was compared against and
+     whether it is deterministic or flaky. Never merge on a red check you did not cause without
+     saying whose it is.
+
+```
+- ❌ `deposit.spec` — 2 failures, lines 87 and 176, both attempts. INHERITED: the same two fail on
+  base `c009e16f`. Deterministic. Not merging on a red check that is not mine.
+- ❌ CI e2e on `main` — NO VERDICT. The dev server exited `4294967295` at 15:19 UTC; no assertions
+  reached. This says nothing about the code. A clean read needs the box free of a local dev server.
+```
 
 ```
 - ❌ `deposit.spec` — 2 failures, lines 87 and 176, both attempts. NOT from this change: the same

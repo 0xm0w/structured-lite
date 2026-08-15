@@ -36,6 +36,12 @@ actually wrong, in prose, with the numbers — the sections are an index to it, 
 
 ![Before and after](docs/before-after.png)
 
+A red check is not one thing. An assertion failure, a run that died before reaching any assertion,
+and a failure inherited from the base branch look identical in a log and imply completely different
+next actions — so every `❌` has to say which it is:
+
+![Red is not always red](docs/red-is-not-red.png)
+
 ## Install
 
 Requires Node 18+ and Claude Code.
@@ -191,9 +197,12 @@ Verifications, instead of being restated), and it buys not shipping a "complete"
   unblocks lives in *Mine* as a gated `🔜`. Never both.
 - **Added work is counted separately.** Folding discovered work into the original denominator hides
   the true scope and the fact that the plan was wrong about something.
-- **Inherited failure is not caused failure.** A red check that was already red names the baseline
-  commit it was compared against and says whether it is deterministic. Without that, nobody can tell
-  whether this change broke it.
+- **Every red says which kind of red.** An assertion failure means fix the code. No verdict means
+  the run died before testing anything and says nothing about the code. Inherited means it was
+  already red on the base — name the baseline commit. Three causes, three next actions.
+- **Corrections keep their precision.** A claim that turns out over-broad is narrowed with the same
+  specificity it was made: which part held, which did not, why the difference matters. Evidence that
+  still stands is kept, not discarded along with the error.
 - **Parked is a third state.** Between open and closed: deferred deliberately, never rendered, woken
   by a stated condition. Only the human parks their own items.
 - **The last section is a recommendation, not a list.** Two or three existing items, ranked, with the
