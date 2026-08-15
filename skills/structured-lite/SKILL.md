@@ -296,10 +296,10 @@ renders a Run button on shell-tagged fences.
 **Yours** — open until closed
 
 *Decide*
-- [blocking] ...
+1. [blocking] ...
 
 *Do*
-- [when you can] ...
+2. [when you can] ...
 ```
 
 Omit any group with no items; never render an empty one. **Mine** and **Yours** are independent —
@@ -347,6 +347,21 @@ session or device the assistant lacks, anything the safety rules prohibit.
 Decisions render first: cheapest items, highest leverage per second of the user's attention. Burying
 a one-word approval under a task needing a bank transfer is how approvals go stale. Within each
 group, `[blocking]` first.
+
+**Number the items in one continuous sequence across both groups**, Decide then Do, so the user can
+say "start with 3" and mean exactly one thing. Numbers are positional within a single response, not
+stable identifiers — they shift as items close, so never cite one from an earlier turn. Recommended
+next steps refers to them by number rather than restating the item.
+
+```
+*Decide*
+1. [blocking] ...
+2. [when you can] ...
+
+*Do*
+3. [blocking] ...
+4. [when you can] ...
+```
 
 Each item carries the item, what it unblocks or why it matters, and its opened-date. Cite the source
 file when it came from one.
@@ -406,12 +421,14 @@ all that, what should I actually do first?**
 
 ```
 ### Recommended next steps
-1. Clear the three one-word decisions above — two minutes, and it unblocks the merge.
-2. Then the deploy key, because the release is stuck behind it.
+1. Clear 1-3, the one-word decisions — two minutes, and it unblocks the merge.
+2. Then 4, the deploy key, because the release is stuck behind it.
 ```
 
 - **Never introduce a new item here.** It references items already in Mine or Yours. Anything new
   goes into those first — this section adds ranking and reasoning, nothing else.
+- **Refer to Yours items by number**, not by restating them. "Start with 3" is the whole point of
+  numbering them.
 - **Say why that order.** Cheapest-first, unblocks-the-most, highest-risk-if-left — the ranking is
   the value, and an unexplained ranking is just the list again in a different sequence.
 - **Three maximum.** A recommendation of everything is not a recommendation.
