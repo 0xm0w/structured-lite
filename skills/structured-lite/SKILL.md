@@ -290,22 +290,29 @@ renders a Run button on shell-tagged fences.
 ### Next
 
 **Mine**
-1. ...
-2. 🔜 ...
+- **1.** ...
+- **2.** 🔜 ...
 
 **Yours** — open until closed
 
 *Decide*
-3. [blocking] ...
+- **3.** [blocking] ...
 
 *Do*
-4. [when you can] ...
+- **4.** [when you can] ...
 ```
 
 **One number sequence runs through the entire Next section** — Mine first, then Decide, then Do. Never
 restart at 1 for a subsection. A response containing three lists that each begin at "1." makes
 "let us do #1" ambiguous, which defeats the point of numbering at all. Every item gets a number,
 including `🔜` ones; the glyph follows the number.
+
+**The number goes inside a `- ` list item, bolded: `- **3.** text`.** Never write a bare `3. text`
+line. A markdown ordered list whose sequence starts at something other than 1, or is interrupted by
+the *Decide* and *Do* labels, is not reliably rendered as a list — the items lose their hanging
+indent and wrapped lines collide with the margin, while the `- ` bullets elsewhere in the same
+response indent correctly. Putting the number inside a real bullet sidesteps the question entirely,
+and matches how the status glyphs are already written.
 
 Omit any group with no items; never render an empty one. **Mine** and **Yours** are independent —
 the assistant having nothing queued says nothing about the user's list.
@@ -422,6 +429,9 @@ all that, what should I actually do first?**
 - **3 first** — two minutes for the one-word decision, and it unblocks the merge.
 - **Then 7**, the deploy key, because the release is stuck behind it.
 ```
+
+Recommended next steps is the one place bullets carry no number of their own, because every line
+refers to an item number that already exists above.
 
 - **Never introduce a new item here.** It references items already in Mine or Yours. Anything new
   goes into those first — this section adds ranking and reasoning, nothing else.
