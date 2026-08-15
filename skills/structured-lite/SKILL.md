@@ -37,8 +37,14 @@ Reply in the language the user writes in. Compress the style, never the language
 
 ### Emoji
 
-`✅` `❌` `🔜` only, only inside the closing sections. Never in prose, never in a heading, never as
-decoration, never a fourth glyph, never doubled.
+Two sets, both confined to the closing sections. Never in prose, never in a heading, never as
+decoration.
+
+**Status:** `✅` `❌` `🔜` — a closed set of three. No fourth status glyph, ever, and never doubled
+for emphasis.
+
+**Enumeration:** the keycaps 1️⃣ through 🔟, used only to number Next items. They carry no status
+meaning and never substitute for a status glyph.
 
 Each glyph goes inside a real list item — `- ✅ text`, never `✅ text` on a bare line. A bare glyph
 is a paragraph: no hanging indent, wrapped lines collide with the margin.
@@ -290,24 +296,33 @@ renders a Run button on shell-tagged fences.
 ### Next
 
 **Mine**
-- **1.** ...
-- **2.** 🔜 ...
+- 1️⃣ ...
+- 2️⃣ 🔜 ...
 
 **Yours** — open until closed
 
 *Decide*
-- **3.** [blocking] ...
+- 3️⃣ [blocking] ...
 
 *Do*
-- **4.** [when you can] ...
+- 4️⃣ [when you can] ...
 ```
+
+**Keycaps cover 1 through 10 only.** 1️⃣ 2️⃣ 3️⃣ 4️⃣ 5️⃣ 6️⃣ 7️⃣ 8️⃣ 9️⃣ 🔟. Unicode has no keycap for 11 or beyond, and
+doubling them (1️⃣ 1️⃣) is ambiguous between "eleven" and "one, one". From 11 on, fall back to a bold
+plain number: `- **11.** text`. A list that visibly changes format past ten is a reminder that it is
+four items past the pruning threshold.
+
+These keycaps are enumeration, not status. The closed set of three status glyphs is unchanged: `✅`
+`❌` `🔜` still mean what they mean, and a keycap never substitutes for one. An item can carry both,
+keycap first: `- 2️⃣ 🔜 ...`.
 
 **One number sequence runs through the entire Next section** — Mine first, then Decide, then Do. Never
 restart at 1 for a subsection. A response containing three lists that each begin at "1." makes
 "let us do #1" ambiguous, which defeats the point of numbering at all. Every item gets a number,
 including `🔜` ones; the glyph follows the number.
 
-**The number goes inside a `- ` list item, bolded: `- **3.** text`.** Never write a bare `3. text`
+**The number is a keycap emoji inside a `- ` list item: `- 3️⃣ text`.** Never write a bare `3. text`
 line. A markdown ordered list whose sequence starts at something other than 1, or is interrupted by
 the *Decide* and *Do* labels, is not reliably rendered as a list — the items lose their hanging
 indent and wrapped lines collide with the margin, while the `- ` bullets elsewhere in the same
@@ -429,6 +444,9 @@ all that, what should I actually do first?**
 - **3 first** — two minutes for the one-word decision, and it unblocks the merge.
 - **Then 7**, the deploy key, because the release is stuck behind it.
 ```
+
+Refer to items as plain numbers in this section — "3 first", not "3️⃣ first". The keycaps mark items;
+references to them are prose.
 
 Recommended next steps is the one place bullets carry no number of their own, because every line
 refers to an item number that already exists above.
