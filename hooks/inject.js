@@ -92,7 +92,7 @@ try {
     },
   }));
 } catch (e) {
-  if (process.env.CAVEMAN_DEBUG === '1') console.error('structured-lite inject failed:', e.message);
+  if (process.env.STRUCTURED_LITE_DEBUG === '1') console.error('structured-lite inject failed:', e.message);
 }
 
 process.exit(0);
