@@ -291,16 +291,21 @@ renders a Run button on shell-tagged fences.
 
 **Mine**
 1. ...
-- 🔜 ...
+2. 🔜 ...
 
 **Yours** — open until closed
 
 *Decide*
-1. [blocking] ...
+3. [blocking] ...
 
 *Do*
-2. [when you can] ...
+4. [when you can] ...
 ```
+
+**One number sequence runs through the entire Next section** — Mine first, then Decide, then Do. Never
+restart at 1 for a subsection. A response containing three lists that each begin at "1." makes
+"let us do #1" ambiguous, which defeats the point of numbering at all. Every item gets a number,
+including `🔜` ones; the glyph follows the number.
 
 Omit any group with no items; never render an empty one. **Mine** and **Yours** are independent —
 the assistant having nothing queued says nothing about the user's list.
@@ -348,20 +353,9 @@ Decisions render first: cheapest items, highest leverage per second of the user'
 a one-word approval under a task needing a bank transfer is how approvals go stale. Within each
 group, `[blocking]` first.
 
-**Number the items in one continuous sequence across both groups**, Decide then Do, so the user can
-say "start with 3" and mean exactly one thing. Numbers are positional within a single response, not
-stable identifiers — they shift as items close, so never cite one from an earlier turn. Recommended
-next steps refers to them by number rather than restating the item.
-
-```
-*Decide*
-1. [blocking] ...
-2. [when you can] ...
-
-*Do*
-3. [blocking] ...
-4. [when you can] ...
-```
+Yours items continue the Next section's single number sequence — they do not start again at 1.
+Numbers are positional within one response, not stable identifiers: they shift as items close, so
+never cite one from an earlier turn.
 
 Each item carries the item, what it unblocks or why it matters, and its opened-date. Cite the source
 file when it came from one.
@@ -381,6 +375,10 @@ to prevent, and it has happened here.
 Work blocked on a user decision does **not** go in Mine as "blocked on your go-ahead". Split it: the
 decision goes in **Yours / Decide** where it persists; the execution goes in **Mine** as a `🔜`
 gated on it. Never both. One item, one owner.
+
+**Never park a decision in Mine to keep the Yours list short.** A long list is fixed by proposing
+parking, not by misfiling. A decision in Mine is invisible the moment the turn scrolls, which is the
+exact failure this whole mechanism exists to prevent.
 
 #### Parked — deferred on purpose, not forgotten
 
@@ -421,14 +419,16 @@ all that, what should I actually do first?**
 
 ```
 ### Recommended next steps
-1. Clear 1-3, the one-word decisions — two minutes, and it unblocks the merge.
-2. Then 4, the deploy key, because the release is stuck behind it.
+- **3 first** — two minutes for the one-word decision, and it unblocks the merge.
+- **Then 7**, the deploy key, because the release is stuck behind it.
 ```
 
 - **Never introduce a new item here.** It references items already in Mine or Yours. Anything new
   goes into those first — this section adds ranking and reasoning, nothing else.
-- **Refer to Yours items by number**, not by restating them. "Start with 3" is the whole point of
-  numbering them.
+- **Never number its own lines.** This section carries no sequence of its own — a fourth "1." in the
+  same response is the ambiguity numbering was meant to remove. Use bullets, and lead each with the
+  item number it refers to.
+- **Refer to items by number**, not by restating them. "Start with 3" is the whole point of numbering.
 - **Say why that order.** Cheapest-first, unblocks-the-most, highest-risk-if-left — the ranking is
   the value, and an unexplained ranking is just the list again in a different sequence.
 - **Three maximum.** A recommendation of everything is not a recommendation.
