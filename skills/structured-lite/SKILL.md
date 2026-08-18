@@ -95,6 +95,32 @@ for, as a template for the shape:
 6. `tsc` runs in no gate, and a squash merge can drop a commit pushed minutes earlier. "Shipped" is a
    claim about `origin/main`, not your branch.
 
+## Report last — the structure is a closing, not an exit
+
+The closing sections get written when the work is finished, not when it becomes reportable. Reaching
+a point where a coherent report could be written is not a reason to stop. It is the most common way
+this skill causes a turn to end early, and it is a defect, not a style.
+
+Before writing `### Done`, do everything left in scope that is startable now. If it needs no user
+input, no external gate and no new decision, it is not a Next item — it is this turn's work, and
+filing it under **Mine** instead of doing it is the exact failure this section exists to prevent.
+
+The order is: exhaust the work, then report what happened. Never: report what happened, then offer
+to continue. A response ending in "want me to do X?" where X was startable is a turn that stopped one
+tool call early.
+
+Three things legitimately end a turn short of complete scope, and each gets named in the scope line:
+
+- **A user decision is required** — the work forks and the branches diverge expensively. The
+  decision goes in **Yours / Decide**, the execution in **Mine** as `🔜` gated on it.
+- **A hard external gate** — credentials, funding, a merge, a clock, a machine the assistant cannot
+  reach.
+- **The user bounded the turn** — they asked for one thing, or asked to stop.
+
+Nothing else. "It felt like a good stopping point", "the rest is a separate concern" and "this is
+already a lot" are not gates. When scope is genuinely large, keep going and let the scope line say
+how much of the plan the turn covered.
+
 ## The body — the sections summarize, they never replace the answer
 
 Everything above `### Done` is a real answer written for a person. The closing sections index it.
@@ -176,7 +202,7 @@ First line under `### Done`, bold, before any bullet. Was the thing we started f
 
 ```
 **Scope: complete** — 7 of 7 tasks, `npm run test:all` green (units 1,204, e2e in CI).
-**Scope: 4 of 7 tasks** — tasks 5–7 in Mine.
+**Scope: 4 of 7 tasks** — 5–7 blocked on the schema decision, Yours 3.
 **Scope: complete for plan 2 of 3** — plan 3 is a separate branch.
 **Scope: complete, ungated** — `test:all` not run.
 ```
@@ -332,14 +358,21 @@ and matches how the status glyphs are already written.
 Omit any group with no items; never render an empty one. **Mine** and **Yours** are independent —
 the assistant having nothing queued says nothing about the user's list.
 
-### Mine — what the assistant does next
+### Mine — what the assistant does next, once this turn cannot continue
 
-Concrete actions, each startable immediately. Number them when order is load-bearing.
+Everything here is work the current turn could not do: gated, blocked, awaiting a decision, or
+belonging to a later phase. Number them when order is load-bearing.
+
+**Nothing startable-now belongs in Mine.** If an item could have been started before the response
+was written, it was this turn's work — do it, and report it under Done. See "Report last". An
+unblocked Mine item is a deferral wearing a plan's clothes, and it reads to the user as progress.
 
 **`🔜` marks work queued but not startable yet** — the next phase of a multi-step build, or work
-waiting on a clock or a decision. An unmarked item is startable now; a `🔜` item is not, and saying
-which is which is the whole value of the marker. Same `- 🔜 ` list form. A `🔜` without its gate is
-a wish.
+waiting on a clock or a decision. Same `- 🔜 ` list form. A `🔜` without its gate is a wish.
+
+An unmarked Mine item is the narrow other case: its gate cleared inside this turn, but the work is
+too large to land in it — a migration, a full-suite rerun, a sweep the user should see scoped before
+it runs. It still says why it was not done now, and "I stopped here" is not a why.
 
 - **Phase work** names the phase and plan file, matching the commit convention here (`plan 2 of 3`
  ):
@@ -366,6 +399,11 @@ Mine holding only `🔜` items is not empty and takes no disclaimer.
 `~/.claude/structured-lite/pending/<sanitized-cwd>.md` and are injected at every session start, resume,
 `/clear` and compaction. Render every open item, in full, in every structured response — not only
 the turn that created it.
+
+**A session is not the unit.** Items outlive the session that opened them, and every session in the
+project writes to the same file — so the injected list is the union of everything left undone there,
+whoever left it. When the project has no file yet, create it the first time an item is opened, at
+the key the injected block names.
 
 **Decide** — a word from the user unblocks assistant work. Costs a sentence, buys back a task.
 **Do** — hands-on action only the user can perform: credentials, funding, account access, a browser
@@ -401,6 +439,29 @@ gated on it. Never both. One item, one owner.
 **Never park a decision in Mine to keep the Yours list short.** A long list is fixed by proposing
 parking, not by misfiling. A decision in Mine is invisible the moment the turn scrolls, which is the
 exact failure this whole mechanism exists to prevent.
+
+#### Elsewhere — open items from the user's other projects
+
+The item file is keyed by working directory, so an item opened in one project is invisible from
+every other. That is how they age: a decision sits open for a week while every session runs
+somewhere else. The session-start hook injects the `## Open` section of every other project's file
+alongside this one's.
+
+Render them in their own `*Elsewhere*` group inside Yours, after Decide and Do, continuing the same
+number sequence. One line each, project-tagged, trimmed to the item and its age — the full reasoning
+lives in that project's file and does not belong in a response written from somewhere else.
+
+- **Never act on one from this session.** That project is not checked out here.
+- **Never close one on inference.** Only the user closes them, and the change is written to that
+  project's file, never to this one.
+- **Past three, render the two oldest and a count line** — `4 more open in other projects.` Age is
+  the ranking: an item that has survived a month is the one worth the user's attention.
+
+```
+*Elsewhere*
+- 7️⃣ [when you can] **D--Projects-app** — Re-render the launch film; the committed mp4 still carries
+  the retired accent colour (opened 2026-08-14, 5 days).
+```
 
 #### Parked — deferred on purpose, not forgotten
 
