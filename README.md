@@ -219,13 +219,20 @@ but never rendered — deferred on purpose, each carrying a wake condition that 
 the assistant cannot re-propose them as new and you cannot lose them. **Closed** items are a record
 and are not injected at all.
 
+Every *other* project's Open section is injected too, as **Elsewhere**: one line per item, tagged
+with its project, rendered under Yours after Decide and Do. One file per project is the right
+storage and the wrong visibility — an item opened in one project is invisible from every other, and
+that is where items go to age. The assistant is told not to act on them from the wrong checkout and
+never to close one on inference. A project with no file of its own still gets everyone else's, and
+is told the key to create its file at.
+
 Every failure path exits 0 and injects nothing. A missing file, an unknown level, a malformed
 payload — none of them can stop a session starting. `printf off > ~/.claude/structured-lite/level`
 disables it without touching settings.
 
 ## Cost
 
-The ruleset is roughly 5,450 tokens on a clean install, injected per session start, resume,
+The ruleset is roughly 6,100 tokens on a clean install, injected per session start, resume,
 `/clear` and compaction — not per turn. Your open-item list adds to that as it grows. On a long
 session with several compactions, budget 20-30k tokens.
 
