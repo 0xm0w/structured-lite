@@ -48,13 +48,17 @@ try {
   // re-injecting it invites the model to talk about the style it is in.
   ruleset = ruleset.replace(/^---[\s\S]*?\n---\s*/, '');
 
-  // Append this project's open user-action items, so they survive compaction,
-  // /clear and resume. Keyed by cwd the same way the memory dir is keyed:
-  // "D:\Projects\app" -> "D--Projects-app".
+  // Append open user-action items so they survive compaction, /clear and resume.
   //
-  // User-action items rot when they live in prose. This file is the one place
-  // they live, and it is re-injected every time context is rebuilt.
-  // action items go to die; this file is the one place they live.
+  // Two scopes, and both matter:
+  //   1. THIS project, keyed by cwd the same way the memory dir is keyed:
+  //      "D:\Projects\app" -> "D--Projects-app". Rendered in full.
+  //   2. Every OTHER project's file. A session runs in one project at a time, so
+  //      an item opened in one is invisible from every other and ages there
+  //      unseen. Rendered compact and project-tagged.
+  //
+  // User-action items rot when they live in prose. These files are the one place
+  // they live, and they are re-injected every time context is rebuilt.
   try {
     // Nested try: a missing or malformed payload must fall back to process.cwd(),
     // not skip the pending list. Losing the list is the one failure that matters
@@ -68,31 +72,58 @@ try {
     } catch (e) { /* fall through to process.cwd() */ }
     if (!cwd) cwd = process.cwd();
 
-    // One dash per separator, NOT per run: "D:\Projects\app" -> "D--Projects-app",
-    // matching the harness's own project-dir convention. A `+` here collapses
-    // ":\" into a single dash and silently misses the file.
-    const key = cwd.replace(/[:\\/]/g, '-').replace(/^-+|-+$/g, '');
-    const pending = fs.readFileSync(path.join(dir, 'pending', `${key}.md`), 'utf8');
+    // One dash per separator, NOT per run, and whitespace counts as one:
+    // "D:\Projects\app" -> "D--Projects-app", "C:\my app" -> "C--my-app", matching
+    // the harness's own project-dir naming. A `+` here collapses ":\" into a single
+    // dash and silently misses the file; omitting \s misses every path with a space.
+    const key = cwd.replace(/[:\\/\s]/g, '-').replace(/^-+|-+$/g, '');
+    const pendingDir = path.join(dir, 'pending');
 
-    // Open and Parked. Closed items are a record, not context.
     // Strip HTML comments before testing emptiness: the format documentation
     // lives in a comment inside each section, and it is not content. Without
     // this, an empty Parked section still emits its whole instruction block.
-    const section = (name) =>
-      (pending.split(new RegExp(`^## ${name}$`, 'm'))[1]?.split(/^## /m)[0] || '')
+    const sectionOf = (text, name) =>
+      (text.split(new RegExp(`^## ${name}$`, 'm'))[1]?.split(/^## /m)[0] || '')
         .replace(/<!--[\s\S]*?-->/g, '')
         .trim();
-    const open = section('Open');
-    const parked = section('Parked');
 
-    if (open || parked) {
+    // Returns '' rather than throwing. A project with no file of its own must still
+    // receive the other projects' items, and most projects have no file.
+    const readItems = (file) => {
+      try { return fs.readFileSync(path.join(pendingDir, file), 'utf8'); }
+      catch (e) { return ''; }
+    };
+
+    // Open and Parked for this project. Closed items are a record, not context.
+    const own = readItems(`${key}.md`);
+    const open = sectionOf(own, 'Open');
+    const parked = sectionOf(own, 'Parked');
+
+    // Every other project's Open section, so an item is never invisible just
+    // because the session happens to be running somewhere else.
+    let elsewhere = '';
+    try {
+      for (const file of fs.readdirSync(pendingDir).sort()) {
+        if (!file.endsWith('.md') || file === `${key}.md`) continue;
+        const theirs = sectionOf(readItems(file), 'Open');
+        if (theirs) elsewhere += `\n**${file.slice(0, -3)}**\n\n${theirs}\n`;
+      }
+    } catch (e) { /* unreadable pending dir => this project's items only */ }
+
+    if (open || parked || elsewhere) {
       ruleset += `\n\n## The user's item list\n\n` +
-        `Source of truth: ~/.claude/structured-lite/pending/${key}.md — edit that file when an item is ` +
-        `added, parked or closed.\n`;
+        `Source of truth: ~/.claude/structured-lite/pending/<project-key>.md — edit that file when ` +
+        `an item is added, parked or closed. This project's key is \`${key}\`` +
+        (own
+          ? `.\n`
+          : `, and that file does not exist yet — create it, in the format pending/EXAMPLE.md uses, ` +
+            `the first time an item is opened here.\n`);
     }
     if (open) {
       ruleset += `\n### Open — render every one, in full, under "### Next / Yours"\n\n` +
-        `Decisions first, blocking first within each group. Never silently drop one.\n\n${open}\n`;
+        `Decisions first, blocking first within each group. Never silently drop one. These are the ` +
+        `project's items, not the session's: every session in this project writes to this same ` +
+        `file, so treat the list as everything left undone here, whoever left it.\n\n${open}\n`;
     }
     if (parked) {
       // Injected so they cannot be re-proposed as new, NOT so they can be rendered.
@@ -102,7 +133,16 @@ try {
         `Check each wake condition every turn; when one is met, move the item back to ## Open ` +
         `and say so. Never re-propose a parked item as if it were new.\n\n${parked}\n`;
     }
-  } catch (e) { /* no pending file for this project => nothing to append */ }
+    if (elsewhere) {
+      ruleset += `\n### Elsewhere — open items from the user's OTHER projects\n\n` +
+        `Left undone by sessions that ran in another project. Still the user's, still open, and ` +
+        `invisible from here unless rendered — which is how they age. Render them under Yours in ` +
+        `their own \`*Elsewhere*\` group, after Decide and Do, continuing the same number sequence: ` +
+        `one line each, project-tagged, item and age only. Past three, render the two oldest and a ` +
+        `count line. Do NOT act on one from this session — that project is not checked out here — ` +
+        `and never close one on inference; the change belongs in that project's file.\n${elsewhere}`;
+    }
+  } catch (e) { /* pending machinery unavailable => ruleset only, never a failed start */ }
 
   process.stdout.write(JSON.stringify({
     suppressOutput: true,
