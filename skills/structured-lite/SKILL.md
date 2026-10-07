@@ -397,8 +397,8 @@ Mine holding only `🔜` items is not empty and takes no disclaimer.
 
 **These persist across turns and sessions.** They live in
 `~/.claude/structured-lite/pending/<sanitized-cwd>.md` and are injected at every session start, resume,
-`/clear` and compaction. Render every open item, in full, in every structured response — not only
-the turn that created it.
+`/clear` and compaction. Render every open item in that file, in full, in every structured response —
+not only the turn that created it. That file is the whole list.
 
 **A session is not the unit.** Items outlive the session that opened them, and every session in the
 project writes to the same file — so the injected list is the union of everything left undone there,
@@ -440,28 +440,14 @@ gated on it. Never both. One item, one owner.
 parking, not by misfiling. A decision in Mine is invisible the moment the turn scrolls, which is the
 exact failure this whole mechanism exists to prevent.
 
-#### Elsewhere — open items from the user's other projects
+#### This project only
 
-The item file is keyed by working directory, so an item opened in one project is invisible from
-every other. That is how they age: a decision sits open for a week while every session runs
-somewhere else. The session-start hook injects the `## Open` section of every other project's file
-alongside this one's.
+Yours renders the open items in this working directory's pending file and nothing else. The current
+project is that directory. Another checkout, a worktree, and every other repository have their own
+files and stay out of this response.
 
-Render them in their own `*Elsewhere*` group inside Yours, after Decide and Do, continuing the same
-number sequence. One line each, project-tagged, trimmed to the item and its age — the full reasoning
-lives in that project's file and does not belong in a response written from somewhere else.
-
-- **Never act on one from this session.** That project is not checked out here.
-- **Never close one on inference.** Only the user closes them, and the change is written to that
-  project's file, never to this one.
-- **Past three, render the two oldest and a count line** — `4 more open in other projects.` Age is
-  the ranking: an item that has survived a month is the one worth the user's attention.
-
-```
-*Elsewhere*
-- 7️⃣ [when you can] **D--Projects-app** — Re-render the launch film; the committed mp4 still carries
-  the retired accent colour (opened 2026-08-14, 5 days).
-```
+Do not scan the pending directory for other files. Do not render, summarize, or count their items.
+Do not add an Elsewhere group.
 
 #### Parked — deferred on purpose, not forgotten
 

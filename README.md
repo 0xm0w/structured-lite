@@ -219,12 +219,10 @@ but never rendered — deferred on purpose, each carrying a wake condition that 
 the assistant cannot re-propose them as new and you cannot lose them. **Closed** items are a record
 and are not injected at all.
 
-Every *other* project's Open section is injected too, as **Elsewhere**: one line per item, tagged
-with its project, rendered under Yours after Decide and Do. One file per project is the right
-storage and the wrong visibility — an item opened in one project is invisible from every other, and
-that is where items go to age. The assistant is told not to act on them from the wrong checkout and
-never to close one on inference. A project with no file of its own still gets everyone else's, and
-is told the key to create its file at.
+Only this working directory's file is read. Another checkout, a worktree, and every other
+repository stay in their own files and are not rendered, summarized, or counted. A session with no
+file of its own is told its key, so the first item can create that file, and it receives nothing
+from any other project.
 
 Every failure path exits 0 and injects nothing. A missing file, an unknown level, a malformed
 payload — none of them can stop a session starting. `printf off > ~/.claude/structured-lite/level`
